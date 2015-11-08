@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        body,div,ul,li,img,button,h2{margin: 0;padding:0;font-family: Arial;font-size: 14px;-webkit-user-select: none;}
+        ul,li{list-style: none;}
+        img{border:none}
+        #outer{height: 300px;width: 500px;position: relative;margin: 50px auto;overflow: hidden;}
+        #inner{height: 300px;width: 3000px;position: absolute;left: 0;top: 0;}
+        #inner div{height: 300px;width: 500px;float: left;}
+        #ben{height: 50px;line-height: 50px;width: 300px;position: absolute;bottom: 10px;left: 150px}
+        #ben li.current{background: green;}
+        #ben li{height: 15px;line-height: 15px;width: 15px;float: left;color: #08BECE;text-align: center;font-weight: bold;cursor: pointer;border-radius: 50%;background: #EEEEEE;margin: 10px;}
+        #btn{height: 30px;width: 440px;position: absolute;top: 50%;margin-top:-15px;left: 30px;display:none;}
+        #left{float: left;margin-right: 20px;opacity: 0.5;cursor: pointer;}
+        #right{float: right;margin-left: 100px;opacity: 0.5;cursor: pointer;}
+    </style>
+</head>
+<body>
+<div id="outer">
+    <div id="inner">
+        <div><img src="img/1.jpg" width="100%" height="100%"/></div>
+        <div><img src="img/2.jpg" width="100%" height="100%"/></div>
+        <div><img src="img/3.jpg" width="100%" height="100%"/></div>
+        <div><img src="img/13.jpg" width="100%" height="100%"/></div>
+        <div><img src="img/5.jpg" width="100%" height="100%"/></div>
+        <div><img src="img/1.jpg" width="100%" height="100%"/></div>
+    </div>
+    <ul id="ben">
+        <li class="current">1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ul>
+    <ul id="btn">
+        <button id="left"><h1>&lt</h1></button>
+        <button id="right"><h1>&gt</h1></button>
+    </ul>
+</div>
+<script type="text/javascript">
+    var ben=document.getElementById("ben");
+    var lis=ben.getElementsByTagName("li");
+    var inner=document.getElementById("inner");
+    var divs=inner.getElementsByTagName("div");
+    var left=document.getElementById("left");
+    var right=document.getElementById("right");
+    var btn=document.getElementById("btn");
+    var outer=document.getElementById("outer");
+    outer.onmouseover=function(){
+                btn.style.display="block";
+            };
+    outer.onmouseout=function(){
+                btn.style.display="none";
+            };
+    for(var i=0;i<lis.length;i++){
+        lis[i].n=i;
+        lis[i].onclick=function(){
+            animate(inner,"left",this.n*-500,500);
+            step=this.n;
+            current(this.n);
+            clearInterval(toTimer);
+                toTimer=setTimeout(function(){
+                toTimer=setInterval(autoRight,3000)
+            },6000)
+        }
+    }
+    var step=0;
+    function autoRight(){
+        step++;
+        if(step>=divs.length){
+            inner.style.left=0;
+            step=1;
+        }
+        animate(inner,"left",step*-500,500);
+        current(step);
+    }
+    right.onclick=autoRight;
+    function autoLeft(){
+        step--;
+        if(step<0){
+            inner.style.left=-(divs.length-1)*500+"px";
+//           console.log(step)
+            step=4;
+        }
+        animate(inner,"left",step*-500,500);
+        current(step);
+    }
+    left.onclick=autoLeft;
+    function current(step){
+        for(var i=0;i<lis.length;i++){
+            lis[i].className="";
+        }if(step==lis.length){
+            step=0;
+        }
+        lis[step].className="current"
+    }
+    var toTimer=window.setInterval(autoRight,3000)
+    function getCss(ele,attr){
+        if(window.getComputedStyle){
+            return parseFloat(getComputedStyle(ele,null)[attr]);
+        }else{
+            if(attr="opacity"){
+                var reg=/alpha\(opacity=(\d+(?:\.\d+)?)\)/;
+                if(reg.test(ele.style.filter)){
+                    return RegExp.$1/100;
+                }else{
+                    return 1;
+                }
+            }else{
+                return ele.currentStyle[attr];
+            }
+        }
+    }
+    function setCss(ele,attr,val){
+        var reg=/height|width|left|right|top|bottom|^margin|^padding/;
+        if(reg.test(attr)){
+            ele.style[attr]=val+"px";
+        }else if(attr="float"){
+            ele.style.cssFloat=val;
+            ele.styleFloat=val;
+        }else if(attr="opacity"){
+            ele.style.opacity=val;
+            ele.style.filter="alpha(opacity="+val*100+")";
+        }else{
+            ele.style[attr]=val;
+        }
+    }
+    function animate(ele,dire,target,duration){
+        var begin=getCss(ele,dire);
+        var change=target-begin;
+        var times=0;
+        var interval=15;
+        function step(){
+            times+=interval;
+            if(times<duration){
+               var val=times/duration*change+begin;
+                setCss(ele,dire,val);
+            }else{
+                setCss(ele,dire,target);
+                clearInterval(timer);
+//                timer=null;
+            }
+        }
+        var timer=window.setInterval(step,interval);
+    }
+</script>
+</body>
+</html>
